@@ -142,7 +142,7 @@
   cursor: grab;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   font-size: 13.5px;
   transition: border-color 0.15s, box-shadow 0.15s, transform 0.12s;
@@ -158,8 +158,17 @@
   transform: scale(0.98);
 }
 
-.kanban-card span {
+.kanban-card-text {
+  flex: 1;
   line-height: 1.4;
+  padding-top: 1px;
+}
+
+.kanban-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 /* DELETE BUTTON */
@@ -182,10 +191,30 @@
   background: var(--tag-red);
 }
 
-/* Touch drag feedback */
-.kanban-card.touch-dragging {
-  opacity: 0.55;
+/* ── MOBILE MOVE BUTTONS ── */
+.kanban-move-btn {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  border-radius: 6px;
+  font-size: 14px;
+  padding: 3px 8px;
+  cursor: pointer;
+  line-height: 1.4;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  touch-action: manipulation;
+}
+
+.kanban-move-btn:hover,
+.kanban-move-btn:active {
+  background: var(--accent-dim);
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-mid);
-  transform: scale(0.97);
+  color: var(--accent);
+}
+
+/* Hide move buttons on desktop — drag handles that instead */
+@media (min-width: 641px) {
+  .kanban-move-btn {
+    display: none;
+  }
 }
