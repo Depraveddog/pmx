@@ -8,6 +8,21 @@
     margin-bottom: 32px;
 }
 
+@media (max-width: 600px) {
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .stat-value {
+        font-size: 28px;
+    }
+
+    .project-cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .stat-card {
     background: var(--surface);
     border: 1px solid var(--border-color);

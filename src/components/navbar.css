@@ -156,3 +156,37 @@
 :root[data-theme="light"] .theme-toggle-knob {
   transform: translateX(18px);
 }
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  .navbar-inner {
+    /* Remove sidebar offset — sidebar is hidden on mobile */
+    padding: 0 14px;
+    gap: 10px;
+  }
+
+  .navbar-logo {
+    height: 52px;
+  }
+
+  /* Hide search bar on mobile — too cramped */
+  .navbar-search-wrapper {
+    display: none;
+  }
+
+  /* Hide email text — keep only sign-out button */
+  .nav-user-email {
+    display: none;
+  }
+
+  /* Shrink sign-out to a compact pill */
+  .nav-signout {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .navbar-right {
+    gap: 8px;
+    margin-left: auto;
+  }
+}

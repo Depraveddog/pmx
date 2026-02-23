@@ -181,3 +181,11 @@
   color: var(--tag-red-text);
   background: var(--tag-red);
 }
+
+/* Touch drag feedback */
+.kanban-card.touch-dragging {
+  opacity: 0.55;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-mid);
+  transform: scale(0.97);
+}

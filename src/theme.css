@@ -61,6 +61,7 @@ body {
   color: var(--text-main);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 h1,
@@ -91,6 +92,10 @@ h4 {
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0;
+  }
+
+  .container {
+    padding: 20px 16px;
   }
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./KanbanBoard.css";
 
 type Task = { id: number; title: string };
@@ -17,7 +17,7 @@ const initialTasks: BoardState = {
 };
 
 interface KanbanBoardProps {
-  externalTasks?: Task[]; // tasks pushed from WBS
+  externalTasks?: Task[];
 }
 
 const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalTasks = [] }) => {
@@ -43,12 +43,14 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalTasks = [] }) => {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [dragOverCol, setDragOverCol] = useState<ColumnId | null>(null);
 
-  // Persist to localStorage on every change
+  // Touch drag state
+  const touchDragRef = useRef<{ task: Task; col: ColumnId } | null>(null);
+  const [touchDragging, setTouchDragging] = useState<number | null>(null);
+
   useEffect(() => {
     localStorage.setItem("pmx-kanban", JSON.stringify(tasks));
   }, [tasks]);
 
-  // Handle external tasks coming from WBS
   useEffect(() => {
     if (!externalTasks.length) return;
     setTasks(prev => {
@@ -72,6 +74,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalTasks = [] }) => {
     setNewTaskTitle("");
   };
 
+  // ── Desktop drag handlers ──
   const handleDragStart = (e: React.DragEvent, task: Task, column: ColumnId) => {
     e.dataTransfer.setData("task", JSON.stringify({ task, column }));
   };
@@ -89,6 +92,46 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalTasks = [] }) => {
       copy[newColumn].push(task);
       return copy;
     });
+  };
+
+  // ── Mobile touch drag handlers ──
+  const handleTouchStart = (task: Task, col: ColumnId) => {
+    touchDragRef.current = { task, col };
+    setTouchDragging(task.id);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const drag = touchDragRef.current;
+    if (!drag) return;
+
+    const touch = e.changedTouches[0];
+    // Find which column element is under the finger
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    const colEl = el?.closest("[data-col]") as HTMLElement | null;
+    const newCol = colEl?.dataset.col as ColumnId | undefined;
+
+    if (newCol && newCol !== drag.col) {
+      setTasks(prev => {
+        const copy = structuredClone(prev) as BoardState;
+        copy[drag.col] = copy[drag.col].filter(t => t.id !== drag.task.id);
+        copy[newCol].push(drag.task);
+        return copy;
+      });
+    }
+
+    touchDragRef.current = null;
+    setTouchDragging(null);
+    setDragOverCol(null);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchDragRef.current) return;
+    // Highlight the column under finger
+    const touch = e.touches[0];
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    const colEl = el?.closest("[data-col]") as HTMLElement | null;
+    const col = colEl?.dataset.col as ColumnId | undefined;
+    setDragOverCol(col ?? null);
   };
 
   const colMeta: { id: ColumnId; label: string }[] = [
@@ -115,10 +158,15 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalTasks = [] }) => {
         <button className="add-task-btn" onClick={addTask}>+ Add Task</button>
       </div>
 
-      <div className="kanban">
+      <div
+        className="kanban"
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {colMeta.map(({ id: col, label }) => (
           <div
             key={col}
+            data-col={col}
             className={`kanban-column col-${col} ${dragOverCol === col ? "drag-over" : ""}`}
             onDrop={(e) => handleDrop(e, col)}
             onDragOver={e => { e.preventDefault(); setDragOverCol(col); }}
@@ -133,9 +181,10 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalTasks = [] }) => {
             {tasks[col].map(task => (
               <div
                 key={task.id}
-                className="kanban-card"
+                className={`kanban-card ${touchDragging === task.id ? "touch-dragging" : ""}`}
                 draggable
                 onDragStart={(e) => handleDragStart(e, task, col)}
+                onTouchStart={() => handleTouchStart(task, col)}
               >
                 <span>{task.title}</span>
                 <button
