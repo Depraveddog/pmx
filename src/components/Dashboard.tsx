@@ -82,16 +82,45 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onOpenProject }) => {
                 <p className="page-subtitle">Your project management cockpit</p>
             </header>
 
-            {/* Stat cards */}
-            <div className="dashboard-stats">
-                {stats.map((s) => (
-                    <div key={s.label} className={`stat-card stat-${s.color}`}>
-                        <div className="stat-value">{s.value}</div>
-                        <div className="stat-label">{s.label}</div>
-                        <div className="stat-sub">{s.sub}</div>
-                    </div>
-                ))}
+            {/* Per-project stats table */}
+            <div className="proj-stats-table-wrap">
+                <table className="proj-stats-table">
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th>✅ Completed</th>
+                            <th>⏳ In Progress</th>
+                            <th>⚠️ High Risks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {loading ? (
+                            <tr><td colSpan={4} style={{ textAlign: "center", color: "var(--text-muted)", padding: "24px" }}>Loading…</td></tr>
+                        ) : projects.length === 0 ? (
+                            <tr><td colSpan={4} style={{ textAlign: "center", color: "var(--text-muted)", padding: "24px" }}>No projects yet — create one below</td></tr>
+                        ) : (
+                            projects.map(p => {
+                                const k = p.kanban ?? { todo: [], inprogress: [], done: [] };
+                                const done = k.done?.length ?? 0;
+                                const inprog = k.inprogress?.length ?? 0;
+                                const risks = (p.risks ?? []).filter((r: any) => r.impact === "High").length;
+                                return (
+                                    <tr key={p.id} className="proj-stats-row" onClick={() => { onOpenProject(p.id); onNavigate("setup"); }}>
+                                        <td className="proj-stats-name">
+                                            <span className="proj-stats-icon">{TYPE_ICONS[p.project_type] ?? "📁"}</span>
+                                            {p.project_name || "Untitled"}
+                                        </td>
+                                        <td><span className="proj-stat-pill pill-green">{done}</span></td>
+                                        <td><span className="proj-stat-pill pill-yellow">{inprog}</span></td>
+                                        <td><span className={`proj-stat-pill ${risks > 0 ? "pill-red" : "pill-dim"}`}>{risks}</span></td>
+                                    </tr>
+                                );
+                            })
+                        )}
+                    </tbody>
+                </table>
             </div>
+
 
             {/* Projects section */}
             <div className="dashboard-section">
