@@ -583,3 +583,11 @@ h4 {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(126, 200, 67, 0.25);
 }
+
+
+/* ========= PDF UPLOAD BUTTON ========= */
+
+.pdf-upload-btn {
+  display: inline-flex;
+  align-items: center;
+}

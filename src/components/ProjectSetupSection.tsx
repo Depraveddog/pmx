@@ -39,9 +39,11 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
   const [aiTasks, setAiTasks] = useState<KanbanTask[]>([]);
   const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
   const [loading, setLoading] = useState(false);
+  const [extracting, setExtracting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentId, setCurrentId] = useState<string | null>(projectId);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load project if editing existing
   useEffect(() => {
@@ -136,6 +138,54 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
         : e.target.value
     };
     scheduleAutoSave(updated);
+  }
+
+  async function handlePdfUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Reset file input so the same file can be re-uploaded
+    e.target.value = "";
+
+    setExtracting(true);
+    setError(null);
+
+    try {
+      // Read file as base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          // Strip data URL prefix ("data:application/pdf;base64,")
+          resolve(result.split(",")[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const res = await fetch("/api/extract-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileBase64: base64, mimeType: file.type || "application/pdf" }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error || "Failed to extract document");
+
+      // Populate form fields
+      const updated = {
+        projectName: data.projectName || form.projectName,
+        budget: data.budget || form.budget,
+        duration: data.duration || form.duration,
+        projectType: data.projectType || form.projectType,
+        objective: data.objective || form.objective,
+        constraints: data.constraints || form.constraints,
+      };
+      setForm(updated);
+      scheduleAutoSave(updated);
+    } catch (err: any) {
+      setError(err.message || "Failed to extract PDF content");
+    } finally {
+      setExtracting(false);
+    }
   }
 
   async function handleGenerate() {
@@ -237,7 +287,34 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
             <label htmlFor="constraints" className="floating-label">Key Constraints</label>
           </div>
           <div className="form-actions">
-            <button className="btn-primary" type="button" onClick={handleGenerate} disabled={loading}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              style={{ display: "none" }}
+              onChange={handlePdfUpload}
+            />
+            <button
+              className="btn-outline pdf-upload-btn"
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={extracting || loading}
+            >
+              {extracting ? (
+                <>Extracting<span className="dots"><span>.</span><span>.</span><span>.</span></span></>
+              ) : (
+                <>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6, verticalAlign: "-2px" }}>
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="12" y1="18" x2="12" y2="12" />
+                    <line x1="9" y1="15" x2="15" y2="15" />
+                  </svg>
+                  Upload PDF
+                </>
+              )}
+            </button>
+            <button className="btn-primary" type="button" onClick={handleGenerate} disabled={loading || extracting}>
               {loading ? "Generating…" : "✦ Generate Full Plan with AI"}
             </button>
           </div>
