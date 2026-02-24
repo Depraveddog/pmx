@@ -13,6 +13,7 @@ export type Project = {
     wbs: any[];
     risks: any[];
     kanban: { todo: any[]; inprogress: any[]; done: any[] };
+    schedule: any[];
     created_at: string;
     updated_at: string;
 };

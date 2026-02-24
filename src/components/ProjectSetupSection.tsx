@@ -6,6 +6,8 @@ import RiskRegisterSection from "./RiskRegisterSection";
 import WbsSection from "./WbsSection";
 import KanbanBoard from "./KanbanBoard";
 import GanttSection from "./GanttSection";
+import ProjectSchedule from "./ProjectSchedule";
+import type { ScheduleEvent } from "./ProjectSchedule";
 import type { WbsPhase, KanbanTask } from "./types";
 import { saveProject, listProjects } from "../lib/projectService";
 import type { Project } from "../lib/projectService";
@@ -35,6 +37,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
   const [risks, setRisks] = useState<Risk[]>([]);
   const [wbs, setWbs] = useState<WbsPhase[]>([]);
   const [aiTasks, setAiTasks] = useState<KanbanTask[]>([]);
+  const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +52,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
       setRisks([]);
       setWbs([]);
       setAiTasks([]);
+      setSchedule([]);
       setCurrentId(null);
       return;
     }
@@ -74,6 +78,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
           (p.kanban?.done ?? []) as KanbanTask[]
         )
       );
+      setSchedule((p.schedule ?? []) as ScheduleEvent[]);
     });
   }, [projectId]);
 
@@ -90,14 +95,14 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
 
   // Auto-save form fields to Supabase (debounced)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  function scheduleAutoSave(updatedForm = form, updatedCharter = charter, updatedRisks = risks, updatedWbs = wbs, updatedTasks = aiTasks) {
+  function scheduleAutoSave(updatedForm = form, updatedCharter = charter, updatedRisks = risks, updatedWbs = wbs, updatedTasks = aiTasks, updatedSchedule = schedule) {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      doSave(updatedForm, updatedCharter, updatedRisks, updatedWbs, updatedTasks);
+      doSave(updatedForm, updatedCharter, updatedRisks, updatedWbs, updatedTasks, updatedSchedule);
     }, 1500);
   }
 
-  async function doSave(f = form, c = charter, r = risks, w = wbs, t = aiTasks) {
+  async function doSave(f = form, c = charter, r = risks, w = wbs, t = aiTasks, s = schedule) {
     if (!f.projectName.trim()) return;
     setSaving(true);
     try {
@@ -113,6 +118,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
         wbs: w,
         risks: r,
         kanban,
+        schedule: s,
       });
       if (!currentId) setCurrentId(saved.id);
     } catch (err) {
@@ -289,6 +295,16 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
               <GanttSection phases={wbs} totalWeeks={Number(form.duration) || 12} projectType={form.projectType} />
             </div>
           )}
+
+          <div className="section">
+            <ProjectSchedule
+              events={schedule}
+              onChange={(updated) => {
+                setSchedule(updated);
+                scheduleAutoSave(form, charter, risks, wbs, aiTasks, updated);
+              }}
+            />
+          </div>
         </>
       )}
 
