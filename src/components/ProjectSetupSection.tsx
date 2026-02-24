@@ -175,7 +175,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
       <header className="page-header" style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <button
           onClick={onBack}
-          style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 20, padding: "0 4px 0 0" }}
+          className="back-arrow-btn"
           title="Back to Dashboard"
         >
           ←

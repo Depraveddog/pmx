@@ -4,14 +4,14 @@
   --primary: #1a181b;
   --surface: #1f1d20;
   --surface-2: #252327;
-  --accent: #abff4f;
-  --accent-dim: rgba(171, 255, 79, 0.12);
-  --accent-mid: rgba(171, 255, 79, 0.35);
+  --accent: #7ec843;
+  --accent-dim: rgba(126, 200, 67, 0.12);
+  --accent-mid: rgba(126, 200, 67, 0.35);
   --text-main: #f0eff0;
   --text-muted: #8a8890;
   --text-dim: #5a5860;
   --card-bg: #1f1d20;
-  --border-color: rgba(171, 255, 79, 0.12);
+  --border-color: rgba(126, 200, 67, 0.12);
   --border-subtle: rgba(255, 255, 255, 0.05);
   --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
@@ -32,18 +32,20 @@
 }
 
 :root[data-theme="light"] {
-  --primary: #f4f3f4;
-  --surface: #ffffff;
-  --surface-2: #f0eff1;
-  --card-bg: #ffffff;
-  --text-main: #111111;
-  --text-muted: #666677;
-  --text-dim: #999aaa;
+  --primary: #efeeec;
+  --surface: #f8f7f5;
+  --surface-2: #eae9e6;
+  --card-bg: #f8f7f5;
+  --accent: #5da832;
+  --text-main: #1e1e1e;
+  --text-muted: #5c5c6b;
+  --text-dim: #8e8e9a;
   --border-color: rgba(0, 0, 0, 0.08);
-  --border-subtle: rgba(0, 0, 0, 0.05);
-  --shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.07);
-  --accent-dim: rgba(100, 180, 0, 0.08);
+  --border-subtle: rgba(0, 0, 0, 0.04);
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --accent-dim: rgba(93, 168, 50, 0.08);
+  --accent-mid: rgba(93, 168, 50, 0.25);
 }
 
 /* ========= RESET & BASE ========= */
@@ -390,8 +392,8 @@ h4 {
 }
 
 .wbs-phase:hover {
-  border-color: rgba(171, 255, 79, 0.3);
-  box-shadow: 0 0 0 1px rgba(171, 255, 79, 0.1);
+  border-color: rgba(126, 200, 67, 0.3);
+  box-shadow: 0 0 0 1px rgba(126, 200, 67, 0.1);
 }
 
 .wbs-phase-badge {
@@ -399,7 +401,7 @@ h4 {
   top: 10px;
   right: 12px;
   background: var(--accent-dim);
-  border: 1px solid rgba(171, 255, 79, 0.3);
+  border: 1px solid rgba(126, 200, 67, 0.3);
   border-radius: 999px;
   padding: 2px 10px;
   font-size: 11px;
@@ -445,7 +447,7 @@ h4 {
   font-weight: 500;
   font-family: inherit;
   background: var(--accent-dim);
-  border: 1px solid rgba(171, 255, 79, 0.25);
+  border: 1px solid rgba(126, 200, 67, 0.25);
   border-radius: 999px;
   color: var(--accent);
   cursor: pointer;
@@ -459,7 +461,7 @@ h4 {
 }
 
 .wbs-add-btn:hover {
-  background: rgba(171, 255, 79, 0.22);
+  background: rgba(126, 200, 67, 0.22);
 }
 
 .wbs-add-btn.added {
@@ -555,4 +557,29 @@ h4 {
   padding: 10px 14px;
   border-radius: 8px;
   font-size: 13px;
+}
+
+/* ========= BACK ARROW BUTTON ========= */
+
+.back-arrow-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1.5px solid var(--accent);
+  background: var(--accent-dim);
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.back-arrow-btn:hover {
+  background: var(--accent-mid);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(126, 200, 67, 0.25);
 }

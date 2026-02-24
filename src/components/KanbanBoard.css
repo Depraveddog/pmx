@@ -87,7 +87,7 @@
 }
 
 .kanban-column.drag-over {
-  border-color: rgba(171, 255, 79, 0.45);
+  border-color: rgba(126, 200, 67, 0.45);
   background: var(--accent-dim);
 }
 
@@ -149,8 +149,8 @@
 }
 
 .kanban-card:hover {
-  border-color: rgba(171, 255, 79, 0.3);
-  box-shadow: 0 2px 12px rgba(171, 255, 79, 0.08);
+  border-color: rgba(126, 200, 67, 0.3);
+  box-shadow: 0 2px 12px rgba(126, 200, 67, 0.08);
 }
 
 .kanban-card:active {
