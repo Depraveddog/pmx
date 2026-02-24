@@ -141,7 +141,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
     setAiTasks([]);
 
     try {
-      const res = await fetch("http://localhost:4000/api/generate-charter", {
+      const res = await fetch("/api/generate-charter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
