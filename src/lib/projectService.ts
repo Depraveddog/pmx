@@ -14,6 +14,7 @@ export type Project = {
     risks: any[];
     kanban: { todo: any[]; inprogress: any[]; done: any[] };
     schedule: any[];
+    budget_items: any[];
     created_at: string;
     updated_at: string;
 };

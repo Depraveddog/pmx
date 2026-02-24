@@ -8,6 +8,8 @@ import KanbanBoard from "./KanbanBoard";
 import GanttSection from "./GanttSection";
 import ProjectSchedule from "./ProjectSchedule";
 import type { ScheduleEvent } from "./ProjectSchedule";
+import BudgetTracker from "./BudgetTracker";
+import type { BudgetItem } from "./BudgetTracker";
 import type { WbsPhase, KanbanTask } from "./types";
 import { saveProject, listProjects } from "../lib/projectService";
 import type { Project } from "../lib/projectService";
@@ -38,6 +40,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
   const [wbs, setWbs] = useState<WbsPhase[]>([]);
   const [aiTasks, setAiTasks] = useState<KanbanTask[]>([]);
   const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
+  const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [uploadMode, setUploadMode] = useState(false);
@@ -57,6 +60,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
       setWbs([]);
       setAiTasks([]);
       setSchedule([]);
+      setBudgetItems([]);
       setCurrentId(null);
       return;
     }
@@ -83,6 +87,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
         )
       );
       setSchedule((p.schedule ?? []) as ScheduleEvent[]);
+      setBudgetItems((p.budget_items ?? []) as BudgetItem[]);
     });
   }, [projectId]);
 
@@ -99,14 +104,14 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
 
   // Auto-save form fields to Supabase (debounced)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  function scheduleAutoSave(updatedForm = form, updatedCharter = charter, updatedRisks = risks, updatedWbs = wbs, updatedTasks = aiTasks, updatedSchedule = schedule) {
+  function scheduleAutoSave(updatedForm = form, updatedCharter = charter, updatedRisks = risks, updatedWbs = wbs, updatedTasks = aiTasks, updatedSchedule = schedule, updatedBudget = budgetItems) {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      doSave(updatedForm, updatedCharter, updatedRisks, updatedWbs, updatedTasks, updatedSchedule);
+      doSave(updatedForm, updatedCharter, updatedRisks, updatedWbs, updatedTasks, updatedSchedule, updatedBudget);
     }, 1500);
   }
 
-  async function doSave(f = form, c = charter, r = risks, w = wbs, t = aiTasks, s = schedule) {
+  async function doSave(f = form, c = charter, r = risks, w = wbs, t = aiTasks, s = schedule, b = budgetItems) {
     if (!f.projectName.trim()) return;
     setSaving(true);
     try {
@@ -123,6 +128,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
         risks: r,
         kanban,
         schedule: s,
+        budget_items: b,
       });
       if (!currentId) setCurrentId(saved.id);
     } catch (err) {
@@ -423,7 +429,18 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
               events={schedule}
               onChange={(updated) => {
                 setSchedule(updated);
-                scheduleAutoSave(form, charter, risks, wbs, aiTasks, updated);
+                scheduleAutoSave(form, charter, risks, wbs, aiTasks, updated, budgetItems);
+              }}
+            />
+          </div>
+
+          <div className="section">
+            <BudgetTracker
+              totalBudget={parseFloat(form.budget.replace(/,/g, "")) || 0}
+              items={budgetItems}
+              onChange={(updated) => {
+                setBudgetItems(updated);
+                scheduleAutoSave(form, charter, risks, wbs, aiTasks, schedule, updated);
               }}
             />
           </div>

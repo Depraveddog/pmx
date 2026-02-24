@@ -22,6 +22,8 @@ type CalEvent = {
     id: string;
     title: string;
     date: string;          // YYYY-MM-DD
+    startTime: string;     // HH:MM or ""
+    endTime: string;       // HH:MM or ""
     color: string;         // CSS variable name
 };
 
@@ -36,6 +38,8 @@ const CalendarPage: React.FC = () => {
     const [showModal, setShowModal] = useState(false);
     const [newTitle, setNewTitle] = useState("");
     const [newColor, setNewColor] = useState("accent");
+    const [newStart, setNewStart] = useState("");
+    const [newEnd, setNewEnd] = useState("");
 
     const colorOptions = [
         { key: "accent", label: "Green" },
@@ -93,6 +97,8 @@ const CalendarPage: React.FC = () => {
         setSelectedDate(dateKey(day));
         setNewTitle("");
         setNewColor("accent");
+        setNewStart("");
+        setNewEnd("");
         setShowModal(true);
     }
 
@@ -102,6 +108,8 @@ const CalendarPage: React.FC = () => {
             id: Date.now().toString(),
             title: newTitle.trim(),
             date: selectedDate,
+            startTime: newStart,
+            endTime: newEnd,
             color: newColor,
         };
         setEvents((prev) => [...prev, ev]);
@@ -122,12 +130,20 @@ const CalendarPage: React.FC = () => {
         return `var(--tag-${c})`;
     };
 
+    function fmtTime(t: string) {
+        if (!t) return "";
+        const [h, m] = t.split(":").map(Number);
+        const ampm = h >= 12 ? "PM" : "AM";
+        const h12 = h % 12 || 12;
+        return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
+    }
+
     /* ── selected day panel ──────────────────────────────────────────────── */
     const selectedDayNum = selectedDate
         ? parseInt(selectedDate.split("-")[2], 10)
         : null;
     const selectedDayEvents = selectedDate
-        ? events.filter((e) => e.date === selectedDate)
+        ? events.filter((e) => e.date === selectedDate).sort((a, b) => (a.startTime || "99").localeCompare(b.startTime || "99"))
         : [];
 
     return (
@@ -222,7 +238,12 @@ const CalendarPage: React.FC = () => {
                                                 background: colorBgVar(ev.color),
                                             }}
                                         >
-                                            <span className="cal-event-title">{ev.title}</span>
+                                            <div className="cal-event-info">
+                                                {(ev.startTime || ev.endTime) && (
+                                                    <span className="cal-event-time">{fmtTime(ev.startTime)}{ev.endTime ? ` – ${fmtTime(ev.endTime)}` : ""}</span>
+                                                )}
+                                                <span className="cal-event-title">{ev.title}</span>
+                                            </div>
                                             <button
                                                 className="cal-event-del"
                                                 onClick={() => handleDeleteEvent(ev.id)}
@@ -263,6 +284,17 @@ const CalendarPage: React.FC = () => {
                                 onKeyDown={(e) => { if (e.key === "Enter") handleAddEvent(); }}
                             />
                             <label htmlFor="calEventTitle" className="floating-label">Event Title</label>
+                        </div>
+
+                        <div className="cal-time-row">
+                            <div className="cal-time-field">
+                                <label className="cal-time-label">Start</label>
+                                <input type="time" className="cal-time-input" value={newStart} onChange={(e) => setNewStart(e.target.value)} />
+                            </div>
+                            <div className="cal-time-field">
+                                <label className="cal-time-label">End</label>
+                                <input type="time" className="cal-time-input" value={newEnd} onChange={(e) => setNewEnd(e.target.value)} />
+                            </div>
                         </div>
 
                         <div className="cal-color-picker">

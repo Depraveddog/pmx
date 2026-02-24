@@ -1,0 +1,255 @@
+/* ========= BUDGET TRACKER ========= */
+
+.bt-box {
+    margin-top: 0;
+}
+
+.bt-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.bt-title {
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+.bt-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* ── Summary Cards ── */
+
+.bt-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.bt-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.bt-card-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+}
+
+.bt-card-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.bt-val-actual {
+    color: var(--tag-blue-text);
+}
+
+.bt-val-ok {
+    color: var(--accent);
+}
+
+.bt-val-over {
+    color: var(--tag-red-text);
+}
+
+/* ── Progress Bars ── */
+
+.bt-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border-color);
+    overflow: hidden;
+    margin-top: 4px;
+    position: relative;
+}
+
+.bt-bar-wide {
+    height: 8px;
+    flex: 1;
+}
+
+.bt-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.bt-bar-planned {
+    background: rgba(126, 200, 67, 0.25);
+    z-index: 1;
+}
+
+.bt-bar-actual {
+    background: var(--accent);
+    z-index: 2;
+}
+
+/* ── Category Breakdown ── */
+
+.bt-cats {
+    margin-bottom: 20px;
+}
+
+.bt-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin: 0 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.bt-cat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bt-cat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bt-cat-name {
+    width: 90px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-main);
+    flex-shrink: 0;
+}
+
+.bt-cat-bars {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.bt-cat-amount {
+    font-size: 11px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    min-width: 110px;
+    text-align: right;
+}
+
+/* ── Items Table ── */
+
+.bt-table-wrap {
+    overflow-x: auto;
+    margin-bottom: 8px;
+}
+
+.bt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.bt-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.bt-table td {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-main);
+}
+
+.bt-row {
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.bt-row:hover {
+    background: var(--accent-dim);
+}
+
+.bt-num {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.bt-cat-tag {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border-radius: 4px;
+    padding: 2px 8px;
+    white-space: nowrap;
+}
+
+.bt-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.bt-under {
+    color: var(--accent);
+    background: var(--accent-dim);
+}
+
+.bt-on {
+    color: var(--tag-blue-text);
+    background: var(--tag-blue);
+}
+
+.bt-over {
+    color: var(--tag-red-text);
+    background: var(--tag-red);
+}
+
+/* ── Modal extras ── */
+
+.bt-modal-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+@media (max-width: 600px) {
+    .bt-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .bt-table-wrap {
+        font-size: 12px;
+    }
+
+    .bt-cat-name {
+        width: 70px;
+    }
+
+    .bt-modal-row {
+        grid-template-columns: 1fr;
+    }
+}

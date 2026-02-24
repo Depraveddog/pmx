@@ -7,6 +7,8 @@ export type ScheduleEvent = {
     id: string;
     title: string;
     date: string;       // YYYY-MM-DD
+    startTime: string;  // HH:MM (24h) or ""
+    endTime: string;    // HH:MM (24h) or ""
     color: string;      // "accent" | "blue" | "yellow" | "red"
 };
 
@@ -43,6 +45,8 @@ const ProjectSchedule: React.FC<Props> = ({ events, onChange }) => {
     const [showModal, setShowModal] = useState(false);
     const [newTitle, setNewTitle] = useState("");
     const [newColor, setNewColor] = useState("accent");
+    const [newStart, setNewStart] = useState("");
+    const [newEnd, setNewEnd] = useState("");
 
     const colorOptions = [
         { key: "accent", label: "Green" },
@@ -80,14 +84,24 @@ const ProjectSchedule: React.FC<Props> = ({ events, onChange }) => {
         setSelectedDate(dk(day));
         setNewTitle("");
         setNewColor("accent");
+        setNewStart("");
+        setNewEnd("");
         setShowModal(true);
     }
 
     function handleAdd() {
         if (!newTitle.trim() || !selectedDate) return;
-        const ev: ScheduleEvent = { id: Date.now().toString(), title: newTitle.trim(), date: selectedDate, color: newColor };
+        const ev: ScheduleEvent = { id: Date.now().toString(), title: newTitle.trim(), date: selectedDate, startTime: newStart, endTime: newEnd, color: newColor };
         onChange([...events, ev]);
         setShowModal(false);
+    }
+
+    function fmtTime(t: string) {
+        if (!t) return "";
+        const [h, m] = t.split(":").map(Number);
+        const ampm = h >= 12 ? "PM" : "AM";
+        const h12 = h % 12 || 12;
+        return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
     }
 
     function handleDelete(id: string) {
@@ -95,7 +109,9 @@ const ProjectSchedule: React.FC<Props> = ({ events, onChange }) => {
     }
 
     const selDayNum = selectedDate ? parseInt(selectedDate.split("-")[2], 10) : null;
-    const selEvents = selectedDate ? events.filter((e) => e.date === selectedDate) : [];
+    const selEvents = selectedDate
+        ? events.filter((e) => e.date === selectedDate).sort((a, b) => (a.startTime || "99").localeCompare(b.startTime || "99"))
+        : [];
 
     return (
         <div className="ps-box list-box">
@@ -166,7 +182,12 @@ const ProjectSchedule: React.FC<Props> = ({ events, onChange }) => {
                                 <ul className="ps-ev-list">
                                     {selEvents.map((ev) => (
                                         <li key={ev.id} className="ps-ev-item" style={{ borderLeftColor: colorVar(ev.color), background: colorBgVar(ev.color) }}>
-                                            <span className="ps-ev-title">{ev.title}</span>
+                                            <div className="ps-ev-info">
+                                                {(ev.startTime || ev.endTime) && (
+                                                    <span className="ps-ev-time">{fmtTime(ev.startTime)}{ev.endTime ? ` – ${fmtTime(ev.endTime)}` : ""}</span>
+                                                )}
+                                                <span className="ps-ev-title">{ev.title}</span>
+                                            </div>
                                             <button className="ps-ev-del" onClick={() => handleDelete(ev.id)} title="Delete">×</button>
                                         </li>
                                     ))}
@@ -190,6 +211,16 @@ const ProjectSchedule: React.FC<Props> = ({ events, onChange }) => {
                                 value={newTitle} onChange={(e) => setNewTitle(e.target.value)}
                                 onKeyDown={(e) => { if (e.key === "Enter") handleAdd(); }} />
                             <label htmlFor="psEvTitle" className="floating-label">Event Title</label>
+                        </div>
+                        <div className="cal-time-row">
+                            <div className="cal-time-field">
+                                <label className="cal-time-label">Start</label>
+                                <input type="time" className="cal-time-input" value={newStart} onChange={(e) => setNewStart(e.target.value)} />
+                            </div>
+                            <div className="cal-time-field">
+                                <label className="cal-time-label">End</label>
+                                <input type="time" className="cal-time-input" value={newEnd} onChange={(e) => setNewEnd(e.target.value)} />
+                            </div>
                         </div>
                         <div className="cal-color-picker">
                             {colorOptions.map((opt) => (
