@@ -40,6 +40,8 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
   const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
+  const [uploadMode, setUploadMode] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentId, setCurrentId] = useState<string | null>(projectId);
@@ -147,6 +149,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
     e.target.value = "";
 
     setExtracting(true);
+    setUploadMode(false);
     setError(null);
 
     try {
@@ -251,57 +254,99 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
       {/* ── Form Card ── */}
       <div className="section card">
         <div className="form">
-          <div className="field">
-            <input id="projectName" className="floating-input" type="text" placeholder=" "
-              value={form.projectName} onChange={handleFormChange} />
-            <label htmlFor="projectName" className="floating-label">Project Name</label>
-          </div>
-          <div className="field">
-            <input id="budget" className="floating-input" type="text" placeholder=" "
-              value={form.budget} onChange={handleFormChange} />
-            <label htmlFor="budget" className="floating-label">Budget</label>
-          </div>
-          <div className="field">
-            <input id="duration" className="floating-input" type="text" placeholder=" "
-              value={form.duration} onChange={handleFormChange} />
-            <label htmlFor="duration" className="floating-label">Duration (weeks)</label>
-          </div>
-          <div className="field">
-            <select id="projectType" className="floating-input" style={{ appearance: "auto", paddingTop: "8px" }}
-              value={form.projectType} onChange={handleFormChange}>
-              <option value="IT">IT / Software</option>
-              <option value="Infrastructure">Infrastructure</option>
-              <option value="Construction">Construction</option>
-              <option value="Other">Other</option>
-            </select>
-            <label htmlFor="projectType" className="floating-label" style={{ top: "-10px", fontSize: "11px" }}>Project Type</label>
-          </div>
-          <div className="field">
-            <textarea id="objective" className="floating-textarea" placeholder=" "
-              value={form.objective} onChange={handleFormChange} />
-            <label htmlFor="objective" className="floating-label">Objective / Business Goal</label>
-          </div>
-          <div className="field">
-            <textarea id="constraints" className="floating-textarea" placeholder=" "
-              value={form.constraints} onChange={handleFormChange} />
-            <label htmlFor="constraints" className="floating-label">Key Constraints</label>
-          </div>
-          <div className="form-actions">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,application/pdf"
-              style={{ display: "none" }}
-              onChange={handlePdfUpload}
-            />
-            <button
-              className="btn-outline pdf-upload-btn"
-              type="button"
+          {uploadMode ? (
+            /* ── Upload Panel ── */
+            <div
+              className={`pdf-drop-zone ${dragging ? "pdf-drop-active" : ""}`}
+              onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragging(false);
+                const file = e.dataTransfer.files?.[0];
+                if (file && file.type === "application/pdf") {
+                  // Reuse the same handler via a synthetic-like approach
+                  const dt = new DataTransfer();
+                  dt.items.add(file);
+                  if (fileInputRef.current) {
+                    fileInputRef.current.files = dt.files;
+                    fileInputRef.current.dispatchEvent(new Event("change", { bubbles: true }));
+                  }
+                }
+              }}
               onClick={() => fileInputRef.current?.click()}
+            >
+              <div className="pdf-drop-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="12" y1="18" x2="12" y2="12" />
+                  <line x1="9" y1="15" x2="15" y2="15" />
+                </svg>
+              </div>
+              <p className="pdf-drop-text">Drag & drop your PDF here</p>
+              <p className="pdf-drop-hint">or click to browse files</p>
+              <span className="pdf-drop-badge">PDF • Max 10MB</span>
+            </div>
+          ) : (
+            /* ── Normal Input Fields ── */
+            <>
+              <div className="field">
+                <input id="projectName" className="floating-input" type="text" placeholder=" "
+                  value={form.projectName} onChange={handleFormChange} />
+                <label htmlFor="projectName" className="floating-label">Project Name</label>
+              </div>
+              <div className="field">
+                <input id="budget" className="floating-input" type="text" placeholder=" "
+                  value={form.budget} onChange={handleFormChange} />
+                <label htmlFor="budget" className="floating-label">Budget</label>
+              </div>
+              <div className="field">
+                <input id="duration" className="floating-input" type="text" placeholder=" "
+                  value={form.duration} onChange={handleFormChange} />
+                <label htmlFor="duration" className="floating-label">Duration (weeks)</label>
+              </div>
+              <div className="field">
+                <select id="projectType" className="floating-input" style={{ appearance: "auto", paddingTop: "8px" }}
+                  value={form.projectType} onChange={handleFormChange}>
+                  <option value="IT">IT / Software</option>
+                  <option value="Infrastructure">Infrastructure</option>
+                  <option value="Construction">Construction</option>
+                  <option value="Other">Other</option>
+                </select>
+                <label htmlFor="projectType" className="floating-label" style={{ top: "-10px", fontSize: "11px" }}>Project Type</label>
+              </div>
+              <div className="field">
+                <textarea id="objective" className="floating-textarea" placeholder=" "
+                  value={form.objective} onChange={handleFormChange} />
+                <label htmlFor="objective" className="floating-label">Objective / Business Goal</label>
+              </div>
+              <div className="field">
+                <textarea id="constraints" className="floating-textarea" placeholder=" "
+                  value={form.constraints} onChange={handleFormChange} />
+                <label htmlFor="constraints" className="floating-label">Key Constraints</label>
+              </div>
+            </>
+          )}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,application/pdf"
+            style={{ display: "none" }}
+            onChange={handlePdfUpload}
+          />
+          <div className="form-actions">
+            <button
+              className={`btn-outline pdf-upload-btn ${uploadMode ? "active" : ""}`}
+              type="button"
+              onClick={() => { if (uploadMode) setUploadMode(false); else setUploadMode(true); }}
               disabled={extracting || loading}
             >
               {extracting ? (
                 <>Extracting<span className="dots"><span>.</span><span>.</span><span>.</span></span></>
+              ) : uploadMode ? (
+                "← Back to Form"
               ) : (
                 <>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6, verticalAlign: "-2px" }}>
@@ -314,7 +359,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
                 </>
               )}
             </button>
-            <button className="btn-primary" type="button" onClick={handleGenerate} disabled={loading || extracting}>
+            <button className="btn-primary" type="button" onClick={handleGenerate} disabled={loading || extracting || uploadMode}>
               {loading ? "Generating…" : "✦ Generate Full Plan with AI"}
             </button>
           </div>
