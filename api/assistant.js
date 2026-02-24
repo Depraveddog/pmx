@@ -25,7 +25,6 @@ export default async function handler(req, res) {
 
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-        // Build conversation context
         const systemPrompt = `You are PMX Assistant, an expert AI project management advisor built into the PMX project management platform.
 
 Your capabilities:
@@ -41,24 +40,23 @@ Rules:
 - Use bullet points and structured formatting when helpful
 - If the user asks about a specific project, work with whatever context they provide
 - Be practical and actionable — give specific advice, not generic platitudes
-- Use markdown formatting for readability`;
+- Use markdown formatting (bold, bullets) for readability`;
 
-        // Build chat history for context
-        const chatHistory = (history || []).map((msg) => ({
-            role: msg.role === "user" ? "user" : "model",
-            parts: [{ text: msg.content }],
-        }));
+        // Build the full prompt with conversation history
+        let fullPrompt = systemPrompt + "\n\n";
 
-        const chat = model.startChat({
-            history: [
-                { role: "user", parts: [{ text: "You are PMX Assistant. Acknowledge briefly." }] },
-                { role: "model", parts: [{ text: "I'm PMX Assistant, ready to help with your project management needs. What can I help you with?" }] },
-                ...chatHistory,
-            ],
-            systemInstruction: systemPrompt,
-        });
+        // Add conversation history
+        if (history && history.length > 0) {
+            fullPrompt += "Previous conversation:\n";
+            for (const msg of history) {
+                const role = msg.role === "user" ? "User" : "Assistant";
+                fullPrompt += `${role}: ${msg.content}\n\n`;
+            }
+        }
 
-        const result = await chat.sendMessage(message);
+        fullPrompt += `User: ${message}\n\nAssistant:`;
+
+        const result = await model.generateContent(fullPrompt);
         const reply = result.response.text();
 
         res.json({ reply });
