@@ -3,7 +3,8 @@ import "./Sidebar.css";
 
 type Page =
   | "dashboard"
-  | "setup";
+  | "setup"
+  | "calendar";
 
 interface SidebarProps {
   activePage: Page;
@@ -13,6 +14,7 @@ interface SidebarProps {
 const navItems: { id: Page; label: string; icon: string }[] = [
   { id: "dashboard", label: "Dashboard", icon: "⊞" },
   { id: "setup", label: "Project Planner", icon: "✦" },
+  { id: "calendar", label: "Calendar", icon: "📅" },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate }) => {

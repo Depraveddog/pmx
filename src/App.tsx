@@ -5,6 +5,7 @@ import Sidebar from "./components/Sidebar";
 import type { Page } from "./components/Sidebar";
 import Dashboard from "./components/Dashboard";
 import ProjectSetupSection from "./components/ProjectSetupSection";
+import CalendarPage from "./components/CalendarPage";
 import AuthPage from "./components/AuthPage";
 import "./theme.css";
 
@@ -38,6 +39,8 @@ function AppShell() {
             onBack={() => { setActivePage("dashboard"); setActiveProjectId(null); }}
           />
         );
+      case "calendar":
+        return <CalendarPage />;
       default:
         return <Dashboard onNavigate={handleNavigate} onOpenProject={handleOpenProject} />;
     }
