@@ -89,11 +89,17 @@ function Navbar({ activePage, onNavigate }: NavbarProps) {
               </svg>
             </button>
           )}
-          <img
-            src={theme === "light" ? pmxLight : pmxDark}
-            alt="PMX Logo"
-            className="navbar-logo"
-          />
+          <button
+            className="navbar-logo-btn"
+            onClick={() => onNavigate?.("dashboard")}
+            title="Go to Dashboard"
+          >
+            <img
+              src={theme === "light" ? pmxLight : pmxDark}
+              alt="PMX Logo"
+              className="navbar-logo"
+            />
+          </button>
         </div>
 
         {/* CENTER: SEARCH */}

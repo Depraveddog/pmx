@@ -29,10 +29,24 @@
 }
 
 /* LOGO */
+.navbar-logo-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.navbar-logo-btn:hover {
+  opacity: 1;
+}
+
 .navbar-logo {
   height: 100px;
   width: auto;
-  transition: opacity 0.2s ease;
   flex-shrink: 0;
 }
 
