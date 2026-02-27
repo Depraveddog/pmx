@@ -179,3 +179,26 @@
     text-decoration: underline;
     text-underline-offset: 2px;
 }
+
+/* ── Login Success Animation ── */
+@keyframes authZoomOut {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    40% {
+        opacity: 1;
+        transform: scale(1.06);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.18);
+    }
+}
+
+.auth-page--success {
+    animation: authZoomOut 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    pointer-events: none;
+}

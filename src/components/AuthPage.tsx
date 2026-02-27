@@ -17,6 +17,7 @@ const AuthPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
 
     // Detect current theme for logo
     const isDark = document.documentElement.getAttribute("data-theme") !== "light";
@@ -29,17 +30,23 @@ const AuthPage: React.FC = () => {
 
         if (mode === "signin") {
             const { error } = await signIn(email, password);
-            if (error) setError(error);
+            if (error) {
+                setError(error);
+                setLoading(false);
+            } else {
+                // Trigger zoom-out animation, then let auth context redirect
+                setSuccess(true);
+            }
         } else {
             const { error } = await signUp(email, password);
             if (error) setError(error);
             else setMessage("Check your email to confirm your account.");
+            setLoading(false);
         }
-        setLoading(false);
     }
 
     return (
-        <div className="auth-page">
+        <div className={`auth-page${success ? " auth-page--success" : ""}`}>
             <FloatingParticles />
             <div className="auth-card">
                 {/* Logo */}
