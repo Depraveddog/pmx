@@ -506,3 +506,127 @@
     padding: 48px 24px;
     text-align: center;
 }
+
+/* ── CUSTOM DELETE MODAL ── */
+.dashboard-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    animation: dashFadeIn 0.15s ease;
+}
+
+@keyframes dashFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.dashboard-modal {
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 24px;
+    width: 400px;
+    max-width: 90vw;
+    box-shadow: var(--shadow);
+    animation: dashSlideUp 0.2s ease;
+}
+
+@keyframes dashSlideUp {
+    from {
+        transform: translateY(12px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.dashboard-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.dashboard-modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+.dashboard-modal-close {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 4px;
+    transition: background 0.15s, color 0.15s;
+    line-height: 1;
+}
+
+.dashboard-modal-close:hover {
+    background: var(--surface-2);
+    color: var(--text-main);
+}
+
+.dashboard-modal-body {
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.5;
+}
+
+.dashboard-modal-body p {
+    margin: 0 0 8px;
+}
+
+.dashboard-modal-warning {
+    color: var(--tag-red-text);
+    font-weight: 500;
+}
+
+.dashboard-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Base button styles since btn-danger may not be defined globally */
+.btn-danger {
+    padding: 7px 16px;
+    border-radius: 999px;
+    border: 1.5px solid transparent;
+    background: #ef4444;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: filter 0.2s, transform 0.15s;
+}
+
+.btn-danger:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.btn-danger:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}

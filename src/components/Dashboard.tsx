@@ -23,6 +23,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onOpenProject }) => {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [deleting, setDeleting] = useState<string | null>(null);
+    const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
 
     useEffect(() => {
         loadProjects();
@@ -40,13 +41,21 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onOpenProject }) => {
         }
     }
 
-    async function handleDelete(id: string, e: React.MouseEvent) {
+    function handleDeleteClick(p: Project, e: React.MouseEvent) {
         e.stopPropagation();
-        if (!window.confirm("Delete this project?")) return;
-        setDeleting(id);
+        setProjectToDelete(p);
+    }
+
+    async function confirmDelete() {
+        if (!projectToDelete) return;
+        setDeleting(projectToDelete.id);
         try {
-            await deleteProject(id);
-            setProjects((prev) => prev.filter((p) => p.id !== id));
+            await deleteProject(projectToDelete.id);
+            setProjects((prev) => prev.filter((p) => p.id !== projectToDelete.id));
+            setProjectToDelete(null);
+        } catch (err) {
+            console.error("Failed to delete project:", err);
+            setProjectToDelete(null);
         } finally {
             setDeleting(null);
         }
@@ -173,7 +182,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onOpenProject }) => {
                                         </div>
                                         <button
                                             className="project-card-delete"
-                                            onClick={(e) => handleDelete(p.id, e)}
+                                            onClick={(e) => handleDeleteClick(p, e)}
                                             disabled={deleting === p.id}
                                             title="Delete project"
                                         >
@@ -216,6 +225,27 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onOpenProject }) => {
                     </div>
                 )}
             </div>
+            {/* Custom Delete Confirmation Modal */}
+            {projectToDelete && (
+                <div className="dashboard-modal-overlay" onClick={() => setProjectToDelete(null)}>
+                    <div className="dashboard-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="dashboard-modal-header">
+                            <h3>Delete Project</h3>
+                            <button className="dashboard-modal-close" onClick={() => setProjectToDelete(null)}>✕</button>
+                        </div>
+                        <div className="dashboard-modal-body">
+                            <p>Are you sure you want to delete <strong style={{ color: "var(--text-main)" }}>{projectToDelete.project_name || "Untitled"}</strong>?</p>
+                            <p className="dashboard-modal-warning">This action cannot be undone.</p>
+                        </div>
+                        <div className="dashboard-modal-actions">
+                            <button className="btn-outline" onClick={() => setProjectToDelete(null)} disabled={deleting !== null}>Cancel</button>
+                            <button className="btn-danger" onClick={confirmDelete} disabled={deleting !== null}>
+                                {deleting === projectToDelete.id ? "Deleting…" : "Delete"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
