@@ -251,28 +251,21 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
   async function exportToPDF() {
     if (!charter) return;
 
-    // Create a temporary container
-    const element = document.createElement("div");
-    element.className = "pdf-export-container";
-
-    // Logo image based on theme preference, default to dark logo for light print backgrounds
-    const logoSrc = pmxDark;
-
     // Await marked.parse as it can behave asynchronously depending on extensions
     const charterHtml = await marked.parse(charter);
 
-    element.innerHTML = `
-      <div class="pdf-header">
-        <div class="pdf-logo-wrapper">
-          <img src="${logoSrc}" class="pdf-logo" />
+    const htmlString = `
+      <div class="pdf-export-container">
+        <div class="pdf-header">
+          <div class="pdf-logo-wrapper">
+            <img src="${pmxDark}" class="pdf-logo" />
+          </div>
+        </div>
+        <div class="pdf-content">
+          ${charterHtml}
         </div>
       </div>
-      <div class="pdf-content">
-        ${charterHtml}
-      </div>
     `;
-
-    document.body.appendChild(element);
 
     const opt = {
       margin: [15, 15, 15, 15] as [number, number, number, number],
@@ -283,12 +276,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
       pagebreak: { mode: ['css', 'legacy'] }
     };
 
-    // Use a small timeout to ensure the DOM is painted with the applied styles before printing
-    setTimeout(() => {
-      html2pdf().set(opt).from(element).save().then(() => {
-        document.body.removeChild(element);
-      });
-    }, 100);
+    html2pdf().set(opt).from(htmlString).save();
   }
 
   const hasResults = !!charter;

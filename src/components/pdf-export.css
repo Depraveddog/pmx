@@ -1,6 +1,6 @@
 /* ========= PDF EXPORT STYLES ========= */
 
-/* The hidden container that html2pdf prints from */
+/* The container that html2pdf prints from */
 .pdf-export-container {
     /* We use an explicit width for deterministic rendering before html2pdf scales it */
     width: 800px;
@@ -9,14 +9,6 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     padding: 0;
     margin: 0;
-
-    /* Must be hidden from user but still in the paint tree for html2pdf to capture it */
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1000;
-    opacity: 0.01;
-    pointer-events: none;
 }
 
 /* ── HEADER ── */
