@@ -32,15 +32,18 @@
 }
 
 .pdf-logo-wrapper {
-    /* give it a specific size context */
-    height: 60px;
+    /* Explicit size so html2canvas doesn't guess bounds */
+    height: 48px;
+    width: 200px;
     display: flex;
+    justify-content: flex-end;
     align-items: center;
 }
 
 .pdf-logo {
-    height: 100%;
-    width: auto;
+    /* Strict pixel constraints for html2pdf scaling */
+    max-height: 48px;
+    max-width: 200px;
     object-fit: contain;
 }
 

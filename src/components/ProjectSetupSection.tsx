@@ -278,8 +278,9 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
       margin: [15, 15, 15, 15] as [number, number, number, number],
       filename: `${form.projectName?.trim() || "Project_Charter"}.pdf`,
       image: { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: true },
-      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+      html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 800 },
+      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const },
+      pagebreak: { mode: ['css', 'legacy'] }
     };
 
     // Use a small timeout to ensure the DOM is painted with the applied styles before printing
