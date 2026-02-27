@@ -277,3 +277,14 @@
     transform: translateY(0);
   }
 }
+
+/* Hide hamburger and its dropdown on desktop screens */
+@media (min-width: 769px) {
+  .nav-mobile-toggle {
+    display: none !important;
+  }
+
+  .nav-mobile-menu {
+    display: none !important;
+  }
+}
