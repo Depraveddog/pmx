@@ -5,6 +5,8 @@
     justify-content: center;
     background: var(--surface-1);
     padding: 24px;
+    position: relative;
+    overflow: hidden;
 }
 
 .auth-card {
@@ -20,6 +22,8 @@
     gap: 0;
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
     animation: authFadeIn 0.4s ease;
+    position: relative;
+    z-index: 10;
 }
 
 @keyframes authFadeIn {

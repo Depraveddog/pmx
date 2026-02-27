@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import "./AuthPage.css";
+import FloatingParticles from "./FloatingParticles";
 
 // Import both logos
 import pmxDark from "../assets/black_nobg.png";
@@ -39,6 +40,7 @@ const AuthPage: React.FC = () => {
 
     return (
         <div className="auth-page">
+            <FloatingParticles />
             <div className="auth-card">
                 {/* Logo */}
                 <div className="auth-logo">
