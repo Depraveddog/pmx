@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import "../theme.css";
+import "./pdf-export.css";
 import RiskRegisterSection from "./RiskRegisterSection";
 import WbsSection from "./WbsSection";
 import KanbanBoard from "./KanbanBoard";
@@ -13,6 +14,10 @@ import type { BudgetItem } from "./BudgetTracker";
 import type { WbsPhase, KanbanTask } from "./types";
 import { saveProject, listProjects } from "../lib/projectService";
 import type { Project } from "../lib/projectService";
+import pmxDark from "../assets/black_nobg.png";
+import pmxLight from "../assets/white_nobg.png";
+import html2pdf from "html2pdf.js";
+import { marked } from "marked";
 
 type Risk = {
   id: string;
@@ -243,6 +248,45 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
     }
   }
 
+  function exportToPDF() {
+    if (!charter) return;
+
+    // Create a temporary container
+    const element = document.createElement("div");
+    element.className = "pdf-export-container";
+
+    // Logo image based on theme preference, default to dark logo for light print backgrounds
+    const logoSrc = pmxDark;
+
+    // Use marked to parse the markdown charter to HTML
+    const charterHtml = marked.parse(charter);
+
+    element.innerHTML = `
+      <div class="pdf-header">
+        <div class="pdf-logo-wrapper">
+          <img src="${logoSrc}" class="pdf-logo" />
+        </div>
+      </div>
+      <div class="pdf-content">
+        ${charterHtml}
+      </div>
+    `;
+
+    document.body.appendChild(element);
+
+    const opt = {
+      margin: [15, 15, 15, 15] as [number, number, number, number],
+      filename: `${form.projectName?.trim() || "Project_Charter"}.pdf`,
+      image: { type: 'jpeg' as const, quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+      document.body.removeChild(element);
+    });
+  }
+
   const hasResults = !!charter;
 
   return (
@@ -396,7 +440,17 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
       {hasResults && !loading && (
         <>
           <div className="section list-box">
-            <h2 style={{ fontSize: "16px", marginBottom: "10px" }}>📄 Project Charter</h2>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+              <h2 style={{ fontSize: "16px", margin: 0 }}>📄 Project Charter</h2>
+              <button className="btn-outline" onClick={exportToPDF} style={{ padding: "4px 12px", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Download PDF
+              </button>
+            </div>
             <div className="charter-output">
               <pre className="charter-pre">{charter}</pre>
             </div>

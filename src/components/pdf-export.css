@@ -1,0 +1,138 @@
+/* ========= PDF EXPORT STYLES ========= */
+
+/* The hidden container that html2pdf prints from */
+.pdf-export-container {
+    /* We use an explicit width for deterministic rendering before html2pdf scales it */
+    width: 800px;
+    background: white;
+    color: #1a1a1a;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    padding: 0;
+    margin: 0;
+
+    /* Must be off-screen so user doesn't see it pop in momentarily */
+    position: absolute;
+    top: -10000px;
+    left: -10000px;
+}
+
+/* ── HEADER ── */
+.pdf-header {
+    display: flex;
+    justify-content: flex-end;
+    /* user asked for logo at the right */
+    align-items: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #7EC843;
+    /* PMX accent color */
+}
+
+.pdf-logo-wrapper {
+    /* give it a specific size context */
+    height: 60px;
+    display: flex;
+    align-items: center;
+}
+
+.pdf-logo {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+}
+
+/* ── TYPOGRAPHY & SPACING ── */
+.pdf-content {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.pdf-content h1 {
+    font-size: 28px;
+    color: #1a1a1a;
+    margin-top: 0;
+    margin-bottom: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.pdf-content h2 {
+    font-size: 20px;
+    color: #7EC843;
+    /* Accent color for main sections */
+    margin-top: 32px;
+    margin-bottom: 16px;
+    font-weight: 700;
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 8px;
+
+    /* Try to prevent page breaks right after a header */
+    page-break-after: avoid;
+}
+
+.pdf-content h3 {
+    font-size: 16px;
+    color: #333;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    font-weight: 600;
+    page-break-after: avoid;
+}
+
+.pdf-content p {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #444;
+}
+
+.pdf-content ul,
+.pdf-content ol {
+    margin-top: 0;
+    margin-bottom: 16px;
+    padding-left: 24px;
+    color: #444;
+}
+
+.pdf-content li {
+    margin-bottom: 8px;
+}
+
+.pdf-content strong {
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+/* ── TABLES (if AI generates them) ── */
+.pdf-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    font-size: 13px;
+}
+
+.pdf-content th {
+    background: #f4f4f4;
+    color: #333;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 2px solid #ccc;
+}
+
+.pdf-content td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #eaeaea;
+    color: #444;
+}
+
+/* ── AVOID ORPHANED BREAKS ── */
+/* Ensure lists and paragraphs don't break awkwardly across pages */
+.pdf-content p,
+.pdf-content li,
+.pdf-content table,
+.pdf-content tr {
+    page-break-inside: avoid;
+}
