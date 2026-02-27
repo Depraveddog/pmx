@@ -470,6 +470,18 @@
     font-family: inherit;
     transition: border-color 0.2s, box-shadow 0.2s;
     color-scheme: dark;
+    /* Native browser dropdown highlight color (e.g. blue instead of PMX Green) */
+    accent-color: var(--accent);
+}
+
+.cal-time-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.cal-time-input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
 }
 
 :root[data-theme="light"] .cal-time-input {
