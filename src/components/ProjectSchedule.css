@@ -292,51 +292,69 @@
 /* ========= TIME FIELDS ========= */
 
 .cal-time-row {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 14px;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
 }
 
 .cal-time-field {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .cal-time-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .cal-time-input {
-  padding: 8px 10px;
-  background: var(--surface-2);
-  border: 1.5px solid var(--border-color);
-  border-radius: var(--border-radius);
-  color: var(--text-main);
-  font-size: 13px;
-  font-family: inherit;
-  transition: border-color 0.2s;
+    padding: 12px 14px;
+    height: 50px;
+    background: var(--surface-2);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--border-radius);
+    color: var(--text-main);
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    color-scheme: dark;
+    accent-color: var(--accent);
+}
+
+.cal-time-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.cal-time-input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+:root[data-theme="light"] .cal-time-input {
+    color-scheme: light;
 }
 
 .cal-time-input:focus {
-  outline: none;
-  border-color: var(--accent);
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-mid);
 }
 
 .ps-ev-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
 }
 
 .ps-ev-time {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
 }

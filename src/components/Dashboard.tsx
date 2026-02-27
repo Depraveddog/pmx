@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import "./Dashboard.css";
 import type { Page } from "./Sidebar";
 import { listProjects, deleteProject } from "../lib/projectService";
@@ -18,6 +18,14 @@ const TYPE_ICONS: Record<string, string> = {
     "": "📁",
 };
 
+const TYPE_LABELS: Record<string, string> = {
+    IT: "IT / Software",
+    Infrastructure: "Infrastructure",
+    Construction: "Construction",
+    Other: "Other",
+    "": "Uncategorized",
+};
+
 const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onOpenProject }) => {
     const { user } = useAuth();
     const [projects, setProjects] = useState<Project[]>([]);
@@ -28,6 +36,20 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onOpenProject }) => {
     useEffect(() => {
         loadProjects();
     }, []);
+
+    const sortedByCreated = useMemo(() => {
+        return [...projects].sort((a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime());
+    }, [projects]);
+
+    function getProjectName(p: Project | null) {
+        if (!p) return "Untitled";
+        const name = p.project_name?.trim() || "";
+        if (!name || name === "Untitled" || name === "Untitled Project") {
+            const idx = sortedByCreated.findIndex(x => x.id === p.id);
+            return `Project ${idx + 1}`;
+        }
+        return name;
+    }
 
     async function loadProjects() {
         setLoading(true);
@@ -117,7 +139,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onOpenProject }) => {
                                     <tr key={p.id} className="proj-stats-row" onClick={() => { onOpenProject(p.id); onNavigate("setup"); }}>
                                         <td className="proj-stats-name">
                                             <span className="proj-stats-icon">{TYPE_ICONS[p.project_type] ?? "📁"}</span>
-                                            {p.project_name || "Untitled"}
+                                            {getProjectName(p)}
                                         </td>
                                         <td><span className="proj-stat-pill pill-green">{done}</span></td>
                                         <td><span className="proj-stat-pill pill-yellow">{inprog}</span></td>
@@ -177,7 +199,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onOpenProject }) => {
                                             {TYPE_ICONS[p.project_type] ?? "📁"}
                                         </span>
                                         <div className="project-card-meta">
-                                            <span className="project-card-type">{p.project_type || "General"}</span>
+                                            {p.project_type && (
+                                                <span className="project-card-type">{TYPE_LABELS[p.project_type] || p.project_type}</span>
+                                            )}
                                             {hasCharter && <span className="project-card-badge">AI Generated</span>}
                                         </div>
                                         <button
@@ -190,7 +214,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onOpenProject }) => {
                                         </button>
                                     </div>
 
-                                    <h3 className="project-card-name">{p.project_name || "Untitled"}</h3>
+                                    <h3 className="project-card-name">{getProjectName(p)}</h3>
 
                                     {p.objective && (
                                         <p className="project-card-objective">{p.objective}</p>
@@ -234,7 +258,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onOpenProject }) => {
                             <button className="dashboard-modal-close" onClick={() => setProjectToDelete(null)}>✕</button>
                         </div>
                         <div className="dashboard-modal-body">
-                            <p>Are you sure you want to delete <strong style={{ color: "var(--text-main)" }}>{projectToDelete.project_name || "Untitled"}</strong>?</p>
+                            <p>Are you sure you want to delete <strong style={{ color: "var(--text-main)" }}>{getProjectName(projectToDelete)}</strong>?</p>
                             <p className="dashboard-modal-warning">This action cannot be undone.</p>
                         </div>
                         <div className="dashboard-modal-actions">
