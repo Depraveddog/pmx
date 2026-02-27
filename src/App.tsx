@@ -8,6 +8,7 @@ import ProjectSetupSection from "./components/ProjectSetupSection";
 import CalendarPage from "./components/CalendarPage";
 import AssistantPage from "./components/AssistantPage";
 import AuthPage from "./components/AuthPage";
+import * as notesService from "./lib/notesService";
 import "./theme.css";
 
 function AppShell() {
@@ -16,15 +17,36 @@ function AppShell() {
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [showNotes, setShowNotes] = useState(false);
   const [notes, setNotes] = useState("");
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isFirstLoad = useRef(true);
 
+  // Load notes from DB on mount
   useEffect(() => {
-    const savedNotes = localStorage.getItem("pmx-dashboard-notes") || "";
-    setNotes(savedNotes);
-  }, []);
+    if (!session) return;
+
+    notesService.fetchNote().then((dbNote) => {
+      setNotes(dbNote);
+      isFirstLoad.current = false;
+    });
+  }, [session]);
+
+  // Save notes to DB when typed (debounced)
+  useEffect(() => {
+    if (isFirstLoad.current || !session) return;
+
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+
+    saveTimeoutRef.current = setTimeout(() => {
+      notesService.saveNote(notes).catch(console.error);
+    }, 1000); // 1s debounce
+
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    };
+  }, [notes, session]);
 
   function handleNotesChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setNotes(e.target.value);
-    localStorage.setItem("pmx-dashboard-notes", e.target.value);
   }
 
   if (loading) return null;
