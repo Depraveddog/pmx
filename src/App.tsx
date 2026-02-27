@@ -14,6 +14,18 @@ function AppShell() {
   const { session, loading } = useAuth();
   const [activePage, setActivePage] = useState<Page>("dashboard");
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+  const [showNotes, setShowNotes] = useState(false);
+  const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    const savedNotes = localStorage.getItem("pmx-dashboard-notes") || "";
+    setNotes(savedNotes);
+  }, []);
+
+  function handleNotesChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setNotes(e.target.value);
+    localStorage.setItem("pmx-dashboard-notes", e.target.value);
+  }
 
   if (loading) return null;
   if (!session) {
@@ -66,6 +78,31 @@ function AppShell() {
           {renderPage()}
         </main>
       </div>
+
+      {/* Global Notes FAB */}
+      <button
+        className={`notes-fab ${showNotes ? "active" : ""}`}
+        onClick={() => setShowNotes(!showNotes)}
+        title="Open Scratchpad"
+      >
+        {showNotes ? "✕" : "📝"}
+      </button>
+
+      {/* Global Notes Panel */}
+      {showNotes && (
+        <div className="notes-panel">
+          <div className="notes-panel-header">
+            <h3>Scratchpad</h3>
+          </div>
+          <textarea
+            className="notes-textarea"
+            placeholder="Jot down your ideas, reminders, or scratchpad thoughts here..."
+            value={notes}
+            onChange={handleNotesChange}
+            autoFocus
+          />
+        </div>
+      )}
     </>
   );
 }
