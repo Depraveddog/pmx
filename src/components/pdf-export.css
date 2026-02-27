@@ -10,10 +10,13 @@
     padding: 0;
     margin: 0;
 
-    /* Must be off-screen so user doesn't see it pop in momentarily */
+    /* Must be hidden from user but still in the paint tree for html2pdf to capture it */
     position: absolute;
-    top: -10000px;
-    left: -10000px;
+    top: 0;
+    left: 0;
+    z-index: -1000;
+    opacity: 0.01;
+    pointer-events: none;
 }
 
 /* ── HEADER ── */

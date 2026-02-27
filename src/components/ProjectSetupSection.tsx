@@ -248,7 +248,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
     }
   }
 
-  function exportToPDF() {
+  async function exportToPDF() {
     if (!charter) return;
 
     // Create a temporary container
@@ -258,8 +258,8 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
     // Logo image based on theme preference, default to dark logo for light print backgrounds
     const logoSrc = pmxDark;
 
-    // Use marked to parse the markdown charter to HTML
-    const charterHtml = marked.parse(charter);
+    // Await marked.parse as it can behave asynchronously depending on extensions
+    const charterHtml = await marked.parse(charter);
 
     element.innerHTML = `
       <div class="pdf-header">
@@ -278,13 +278,16 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
       margin: [15, 15, 15, 15] as [number, number, number, number],
       filename: `${form.projectName?.trim() || "Project_Charter"}.pdf`,
       image: { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: true },
       jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
     };
 
-    html2pdf().set(opt).from(element).save().then(() => {
-      document.body.removeChild(element);
-    });
+    // Use a small timeout to ensure the DOM is painted with the applied styles before printing
+    setTimeout(() => {
+      html2pdf().set(opt).from(element).save().then(() => {
+        document.body.removeChild(element);
+      });
+    }, 100);
   }
 
   const hasResults = !!charter;
