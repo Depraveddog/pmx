@@ -131,8 +131,10 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
         budget_items: b,
       });
       if (!currentId) setCurrentId(saved.id);
-    } catch (err) {
+      setError(null);
+    } catch (err: any) {
       console.error("Auto-save failed:", err);
+      setError(`Failed to save to database: ${err?.message || "Check console"}`);
     } finally {
       setSaving(false);
     }
