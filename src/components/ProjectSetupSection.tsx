@@ -112,12 +112,12 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
   }
 
   async function doSave(f = form, c = charter, r = risks, w = wbs, t = aiTasks, s = schedule, b = budgetItems) {
-    if (!f.projectName.trim()) return;
+    const finalProjectName = f.projectName?.trim() || "Untitled Project";
     setSaving(true);
     try {
       const kanban = { todo: t, inprogress: [], done: [] };
       const saved = await saveProject(currentId, {
-        project_name: f.projectName,
+        project_name: finalProjectName,
         budget: f.budget,
         duration: f.duration,
         project_type: f.projectType,
@@ -224,8 +224,16 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
       setWbs(newWbs);
       setAiTasks(newTasks);
 
+      // Extract a default project name from the charter if none is provided
+      let finalForm = { ...form };
+      if (!form.projectName?.trim()) {
+        const potentialName = newCharter.match(/^# (.*)/m)?.[1] || "Untitled Project";
+        finalForm.projectName = potentialName;
+        setForm(finalForm);
+      }
+
       // Immediately save with AI results
-      await doSave(form, newCharter, newRisks, newWbs, newTasks);
+      await doSave(finalForm, newCharter, newRisks, newWbs, newTasks);
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {
