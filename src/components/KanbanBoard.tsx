@@ -3,67 +3,31 @@
 import React, { useState, useEffect } from "react";
 import "./KanbanBoard.css";
 
-type Task = { id: number; title: string };
-type ColumnId = "todo" | "inprogress" | "done";
-type BoardState = Record<ColumnId, Task[]>;
+export type Task = { id: string | number; title: string };
+export type ColumnId = "todo" | "inprogress" | "done";
+export type BoardState = Record<ColumnId, Task[]>;
 const COLS: ColumnId[] = ["todo", "inprogress", "done"];
 
-const initialTasks: BoardState = {
-  todo: [
-    { id: 1, title: "Define project scope" },
-    { id: 2, title: "Draft project charter" },
-  ],
-  inprogress: [{ id: 3, title: "Stakeholder interviews" }],
-  done: [{ id: 4, title: "Initial requirements gathered" }],
-};
-
 interface KanbanBoardProps {
-  externalTasks?: Task[];
+  board: BoardState;
+  onChange: (board: BoardState) => void;
 }
 
-const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalTasks = [] }) => {
-  const [tasks, setTasks] = useState<BoardState>(() => {
-    try {
-      const saved = localStorage.getItem("pmx-kanban");
-      return saved ? JSON.parse(saved) : initialTasks;
-    } catch { return initialTasks; }
-  });
-  const [nextId, setNextId] = useState(() => {
-    try {
-      const saved = localStorage.getItem("pmx-kanban");
-      if (saved) {
-        const b: BoardState = JSON.parse(saved);
-        return Math.max(0, ...[...b.todo, ...b.inprogress, ...b.done].map(t => t.id)) + 1;
-      }
-    } catch { }
-    return 5;
-  });
+const KanbanBoard: React.FC<KanbanBoardProps> = ({ board, onChange }) => {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [dragOverCol, setDragOverCol] = useState<ColumnId | null>(null);
 
-  useEffect(() => {
-    localStorage.setItem("pmx-kanban", JSON.stringify(tasks));
-  }, [tasks]);
-
-  useEffect(() => {
-    if (!externalTasks.length) return;
-    setTasks(prev => {
-      const existing = new Set([...prev.todo, ...prev.inprogress, ...prev.done].map(t => t.title));
-      const newOnes = externalTasks.filter(t => !existing.has(t.title));
-      if (!newOnes.length) return prev;
-      return { ...prev, todo: [...prev.todo, ...newOnes] };
-    });
-    setNextId(prev => prev + externalTasks.length);
-  }, [externalTasks]);
-
-  const deleteTask = (col: ColumnId, id: number) =>
-    setTasks(prev => ({ ...prev, [col]: prev[col].filter(t => t.id !== id) }));
+  const deleteTask = (col: ColumnId, id: string | number) => {
+    onChange({ ...board, [col]: board[col].filter(t => String(t.id) !== String(id)) });
+  };
 
   const addTask = () => {
     const title = newTaskTitle.trim();
     if (!title) return;
-    setTasks(prev => ({ ...prev, todo: [...prev.todo, { id: nextId, title }] }));
-    setNextId(prev => prev + 1);
+    onChange({
+      ...board,
+      todo: [...board.todo, { id: `task-${Date.now()}-${Math.floor(Math.random() * 1000)}`, title }]
+    });
     setNewTaskTitle("");
   };
 
@@ -72,12 +36,10 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalTasks = [] }) => {
     const idx = COLS.indexOf(fromCol) + direction;
     if (idx < 0 || idx >= COLS.length) return;
     const toCol = COLS[idx];
-    setTasks(prev => {
-      const copy = structuredClone(prev) as BoardState;
-      copy[fromCol] = copy[fromCol].filter(t => t.id !== task.id);
-      copy[toCol].push(task);
-      return copy;
-    });
+    const copy = structuredClone(board) as BoardState;
+    copy[fromCol] = copy[fromCol].filter(t => String(t.id) !== String(task.id));
+    copy[toCol].push(task);
+    onChange(copy);
   };
 
   // Desktop drag
@@ -91,12 +53,11 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalTasks = [] }) => {
     if (!data) return;
     const { task, col } = JSON.parse(data) as { task: Task; col: ColumnId };
     if (col === newCol) return;
-    setTasks(prev => {
-      const copy = structuredClone(prev) as BoardState;
-      copy[col] = copy[col].filter(t => t.id !== task.id);
-      copy[newCol].push(task);
-      return copy;
-    });
+    const copy = structuredClone(board) as BoardState;
+    // VERY IMPORTANT: filter by String(id) to avoid any type coercion issues with Date.now() or AI generated IDs
+    copy[col] = copy[col].filter(t => String(t.id) !== String(task.id));
+    copy[newCol].push(task);
+    onChange(copy);
   };
 
   const colMeta: { id: ColumnId; label: string }[] = [
@@ -136,12 +97,12 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ externalTasks = [] }) => {
             <h3 className="kanban-title">
               <span className="kanban-title-dot" />
               {label}
-              <span className="kanban-count">{tasks[col].length}</span>
+              <span className="kanban-count">{board[col].length}</span>
             </h3>
 
-            {tasks[col].map(task => (
+            {board[col].map((task, i) => (
               <div
-                key={task.id}
+                key={`${task.id}-${i}`}
                 className="kanban-card"
                 draggable
                 onDragStart={e => handleDragStart(e, task, col)}

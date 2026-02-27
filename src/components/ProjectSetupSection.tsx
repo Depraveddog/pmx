@@ -43,7 +43,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
   const [charter, setCharter] = useState<string>("");
   const [risks, setRisks] = useState<Risk[]>([]);
   const [wbs, setWbs] = useState<WbsPhase[]>([]);
-  const [aiTasks, setAiTasks] = useState<KanbanTask[]>([]);
+  const [kanban, setKanban] = useState<{ todo: any[], inprogress: any[], done: any[] }>({ todo: [], inprogress: [], done: [] });
   const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -63,7 +63,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
       setCharter("");
       setRisks([]);
       setWbs([]);
-      setAiTasks([]);
+      setKanban({ todo: [], inprogress: [], done: [] });
       setSchedule([]);
       setBudgetItems([]);
       setCurrentId(null);
@@ -85,12 +85,11 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
       setCharter(p.charter ?? "");
       setRisks((p.risks ?? []) as Risk[]);
       setWbs((p.wbs ?? []) as WbsPhase[]);
-      setAiTasks(
-        ((p.kanban?.todo ?? []) as KanbanTask[]).concat(
-          (p.kanban?.inprogress ?? []) as KanbanTask[],
-          (p.kanban?.done ?? []) as KanbanTask[]
-        )
-      );
+      setKanban({
+        todo: p.kanban?.todo || [],
+        inprogress: p.kanban?.inprogress || [],
+        done: p.kanban?.done || []
+      });
       setSchedule((p.schedule ?? []) as ScheduleEvent[]);
       setBudgetItems((p.budget_items ?? []) as BudgetItem[]);
     });
@@ -109,18 +108,17 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
 
   // Auto-save form fields to Supabase (debounced)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  function scheduleAutoSave(updatedForm = form, updatedCharter = charter, updatedRisks = risks, updatedWbs = wbs, updatedTasks = aiTasks, updatedSchedule = schedule, updatedBudget = budgetItems) {
+  function scheduleAutoSave(updatedForm = form, updatedCharter = charter, updatedRisks = risks, updatedWbs = wbs, updatedKanban = kanban, updatedSchedule = schedule, updatedBudget = budgetItems) {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      doSave(updatedForm, updatedCharter, updatedRisks, updatedWbs, updatedTasks, updatedSchedule, updatedBudget);
+      doSave(updatedForm, updatedCharter, updatedRisks, updatedWbs, updatedKanban, updatedSchedule, updatedBudget);
     }, 1500);
   }
 
-  async function doSave(f = form, c = charter, r = risks, w = wbs, t = aiTasks, s = schedule, b = budgetItems) {
+  async function doSave(f = form, c = charter, r = risks, w = wbs, k = kanban, s = schedule, b = budgetItems) {
     const finalProjectName = f.projectName?.trim() || "Untitled Project";
     setSaving(true);
     try {
-      const kanban = { todo: t, inprogress: [], done: [] };
       const saved = await saveProject(currentId, {
         project_name: finalProjectName,
         budget: f.budget,
@@ -131,7 +129,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
         charter: c,
         wbs: w,
         risks: r,
-        kanban,
+        kanban: k,
         schedule: s,
         budget_items: b,
       });
@@ -210,7 +208,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
     setCharter("");
     setRisks([]);
     setWbs([]);
-    setAiTasks([]);
+    setKanban({ todo: [], inprogress: [], done: [] });
 
     try {
       const res = await fetch("/api/generate-charter", {
@@ -229,7 +227,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
       setCharter(newCharter);
       setRisks(newRisks);
       setWbs(newWbs);
-      setAiTasks(newTasks);
+      setKanban({ todo: newTasks, inprogress: [], done: [] });
 
       // Extract a default project name from the charter if none is provided
       let finalForm = { ...form };
@@ -240,7 +238,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
       }
 
       // Immediately save with AI results
-      await doSave(finalForm, newCharter, newRisks, newWbs, newTasks);
+      await doSave(finalForm, newCharter, newRisks, newWbs, { todo: newTasks, inprogress: [], done: [] });
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {
@@ -453,9 +451,9 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
               <WbsSection
                 phases={wbs}
                 onAddToKanban={(title) => {
-                  const task = { id: Date.now(), title };
-                  setAiTasks((prev) => {
-                    const next = [...prev, task];
+                  const task = { id: `task-${Date.now()}-${Math.floor(Math.random() * 1000)}`, title };
+                  setKanban((prev) => {
+                    const next = { ...prev, todo: [...(prev.todo || []), task] };
                     scheduleAutoSave(form, charter, risks, wbs, next);
                     return next;
                   });
@@ -465,7 +463,13 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
           )}
 
           <div className="section">
-            <KanbanBoard externalTasks={aiTasks} />
+            <KanbanBoard
+              board={kanban as any}
+              onChange={(updated) => {
+                setKanban(updated);
+                scheduleAutoSave(form, charter, risks, wbs, updated);
+              }}
+            />
           </div>
 
           {risks.length > 0 && (
@@ -485,7 +489,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
               events={schedule}
               onChange={(updated) => {
                 setSchedule(updated);
-                scheduleAutoSave(form, charter, risks, wbs, aiTasks, updated, budgetItems);
+                scheduleAutoSave(form, charter, risks, wbs, kanban, updated, budgetItems);
               }}
             />
           </div>
@@ -496,7 +500,7 @@ function ProjectSetupSection({ projectId, onBack }: Props) {
               items={budgetItems}
               onChange={(updated) => {
                 setBudgetItems(updated);
-                scheduleAutoSave(form, charter, risks, wbs, aiTasks, schedule, updated);
+                scheduleAutoSave(form, charter, risks, wbs, kanban, schedule, updated);
               }}
             />
           </div>
