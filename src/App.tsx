@@ -51,7 +51,7 @@ function AppShell() {
 
   return (
     <>
-      <Navbar />
+      <Navbar activePage={activePage} onNavigate={handleNavigate} />
       <div className="app-shell">
         <Sidebar activePage={activePage} onNavigate={handleNavigate} />
         <main className="main-content">
