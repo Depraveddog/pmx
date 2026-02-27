@@ -20,9 +20,15 @@
   margin-bottom: 20px;
 }
 
-.add-task-input {
+.add-task-inputs {
+  display: flex;
   flex: 1;
-  max-width: 440px;
+  gap: 10px;
+  max-width: 600px;
+}
+
+.add-task-input {
+  width: 100%;
   padding: 9px 14px;
   border-radius: var(--border-radius);
   border: 1.5px solid var(--border-color);
@@ -41,6 +47,14 @@
 .add-task-input:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-mid);
+}
+
+.title-input {
+  flex: 2;
+}
+
+.email-input {
+  flex: 1;
 }
 
 .add-task-btn {
@@ -87,7 +101,7 @@
 }
 
 .kanban-column.drag-over {
-  border-color: rgba(126, 200, 67, 0.45);
+  border-color: rgba(62, 207, 142, 0.45);
   background: var(--accent-dim);
 }
 
@@ -149,8 +163,8 @@
 }
 
 .kanban-card:hover {
-  border-color: rgba(126, 200, 67, 0.3);
-  box-shadow: 0 2px 12px rgba(126, 200, 67, 0.08);
+  border-color: rgba(62, 207, 142, 0.3);
+  box-shadow: 0 2px 12px rgba(62, 207, 142, 0.08);
 }
 
 .kanban-card:active {
@@ -158,10 +172,28 @@
   transform: scale(0.98);
 }
 
-.kanban-card-text {
+.kanban-card-content {
+  display: flex;
+  flex-direction: column;
   flex: 1;
+  gap: 4px;
+}
+
+.kanban-card-text {
   line-height: 1.4;
   padding-top: 1px;
+}
+
+.kanban-card-owner {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
 }
 
 .kanban-card-actions {
@@ -169,6 +201,24 @@
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
+}
+
+/* EMAIL BUTTON */
+.email-btn {
+  text-decoration: none;
+  font-size: 16px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: transform 0.15s, background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.email-btn:hover {
+  background: var(--accent-dim);
+  transform: scale(1.1);
 }
 
 /* DELETE BUTTON */

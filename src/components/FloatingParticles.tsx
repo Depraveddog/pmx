@@ -21,7 +21,7 @@ const FloatingParticles: React.FC = () => {
         let animationFrameId: number;
 
         // We'll use the PMX Green accent color
-        const baseColor = "126, 200, 67"; // RGB for #7ec843 / var(--accent)
+        const baseColor = "62, 207, 142"; // RGB for #3ecf8e / var(--accent)
 
         // Mouse coordinates
         let mouseX = -1000;

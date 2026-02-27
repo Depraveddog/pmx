@@ -255,7 +255,7 @@
 
 .action-card:hover {
     background: var(--surface-2);
-    border-color: rgba(126, 200, 67, 0.25);
+    border-color: rgba(62, 207, 142, 0.25);
     transform: translateX(3px);
 }
 
@@ -369,7 +369,7 @@
 .project-card:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow);
-    border-color: rgba(126, 200, 67, 0.25);
+    border-color: rgba(62, 207, 142, 0.25);
 }
 
 .project-card-header {

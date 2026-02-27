@@ -50,7 +50,7 @@
 .ast-msg-user .ast-msg-avatar {
     background: var(--accent-dim);
     color: var(--accent);
-    border: 1px solid rgba(126, 200, 67, 0.25);
+    border: 1px solid rgba(62, 207, 142, 0.25);
 }
 
 .ast-msg-assistant .ast-msg-avatar {

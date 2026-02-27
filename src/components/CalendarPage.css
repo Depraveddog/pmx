@@ -182,7 +182,7 @@
 
 .cal-cell-active:hover {
     background: var(--accent-dim);
-    border-color: rgba(126, 200, 67, 0.2);
+    border-color: rgba(62, 207, 142, 0.2);
 }
 
 .cal-cell-empty {

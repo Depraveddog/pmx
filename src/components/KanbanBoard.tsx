@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import "./KanbanBoard.css";
 
-export type Task = { id: string | number; title: string };
+export type Task = { id: string | number; title: string; ownerEmail?: string };
 export type ColumnId = "todo" | "inprogress" | "done";
 export type BoardState = Record<ColumnId, Task[]>;
 const COLS: ColumnId[] = ["todo", "inprogress", "done"];
@@ -15,6 +15,7 @@ interface KanbanBoardProps {
 
 const KanbanBoard: React.FC<KanbanBoardProps> = ({ board, onChange }) => {
   const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskOwnerEmail, setNewTaskOwnerEmail] = useState("");
   const [dragOverCol, setDragOverCol] = useState<ColumnId | null>(null);
 
   const deleteTask = (col: ColumnId, id: string | number) => {
@@ -24,11 +25,17 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ board, onChange }) => {
   const addTask = () => {
     const title = newTaskTitle.trim();
     if (!title) return;
+    const task: Task = {
+      id: `task-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      title,
+      ownerEmail: newTaskOwnerEmail.trim() || undefined
+    };
     onChange({
       ...board,
-      todo: [...board.todo, { id: `task-${Date.now()}-${Math.floor(Math.random() * 1000)}`, title }]
+      todo: [...board.todo, task]
     });
     setNewTaskTitle("");
+    setNewTaskOwnerEmail("");
   };
 
   // Move a task left or right one column (for mobile buttons)
@@ -74,13 +81,23 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ board, onChange }) => {
       </header>
 
       <div className="add-task-container">
-        <input
-          className="add-task-input"
-          placeholder="Add a new task… (Enter to add)"
-          value={newTaskTitle}
-          onChange={e => setNewTaskTitle(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && addTask()}
-        />
+        <div className="add-task-inputs">
+          <input
+            className="add-task-input title-input"
+            placeholder="Add a new task…"
+            value={newTaskTitle}
+            onChange={e => setNewTaskTitle(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && addTask()}
+          />
+          <input
+            className="add-task-input email-input"
+            placeholder="Owner Email (optional)"
+            type="email"
+            value={newTaskOwnerEmail}
+            onChange={e => setNewTaskOwnerEmail(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && addTask()}
+          />
+        </div>
         <button className="add-task-btn" onClick={addTask}>+ Add Task</button>
       </div>
 
@@ -107,8 +124,25 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ board, onChange }) => {
                 draggable
                 onDragStart={e => handleDragStart(e, task, col)}
               >
-                <span className="kanban-card-text">{task.title}</span>
+                <div className="kanban-card-content">
+                  <span className="kanban-card-text">{task.title}</span>
+                  {task.ownerEmail && (
+                    <span className="kanban-card-owner" title="Owner Email">
+                      👤 {task.ownerEmail}
+                    </span>
+                  )}
+                </div>
                 <div className="kanban-card-actions">
+                  {task.ownerEmail && (
+                    <a
+                      href={`mailto:${task.ownerEmail}?subject=${encodeURIComponent(`Task Assigned: ${task.title}`)}&body=${encodeURIComponent(`You have been assigned a new task:\n\nTitle: ${task.title}\nStatus: ${label}\n\nPlease update the Kanban board when you make progress.`)}`}
+                      className="email-btn"
+                      title="Send Task via Email"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      ✉️
+                    </a>
+                  )}
                   {/* Mobile move buttons — hidden on desktop via CSS */}
                   {colIdx > 0 && (
                     <button

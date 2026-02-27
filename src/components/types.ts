@@ -9,6 +9,7 @@ export type WbsPhase = {
 };
 
 export type KanbanTask = {
-    id: number;
+    id: number | string;
     title: string;
+    ownerEmail?: string;
 };
