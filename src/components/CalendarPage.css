@@ -57,13 +57,30 @@
 .cal-month-nav {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
     margin-bottom: 20px;
 }
 
-.cal-month-title {
+.cal-nav-left,
+.cal-nav-right {
     flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* space between buttons if any */
+}
+
+.cal-nav-left {
+    justify-content: flex-start;
+}
+
+.cal-nav-right {
+    justify-content: flex-end;
+}
+
+.cal-month-title {
     text-align: center;
+    white-space: nowrap;
 }
 
 .cal-month-name {

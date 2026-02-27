@@ -161,13 +161,19 @@ const CalendarPage: React.FC = () => {
                 <div className="cal-card">
                     {/* Month nav */}
                     <div className="cal-month-nav">
-                        <button className="cal-nav-btn" onClick={handlePrev}>‹</button>
+                        <div className="cal-nav-left">
+                            <button className="cal-nav-btn" onClick={handlePrev}>‹</button>
+                            <button className="cal-nav-btn" onClick={handleNext}>›</button>
+                        </div>
+
                         <div className="cal-month-title">
                             <span className="cal-month-name">{MONTHS[viewMonth]}</span>
                             <span className="cal-year">{viewYear}</span>
                         </div>
-                        <button className="cal-nav-btn" onClick={handleNext}>›</button>
-                        <button className="cal-today-btn" onClick={handleToday}>Today</button>
+
+                        <div className="cal-nav-right">
+                            <button className="cal-today-btn" onClick={handleToday}>Today</button>
+                        </div>
                     </div>
 
                     {/* Day headers */}
