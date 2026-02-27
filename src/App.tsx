@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
@@ -16,7 +16,15 @@ function AppShell() {
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
 
   if (loading) return null;
-  if (!session) return <AuthPage />;
+  if (!session) {
+    // Mark that we're on the auth page so we can detect fresh login next render
+    sessionStorage.setItem("pmx-was-on-auth", "1");
+    return <AuthPage />;
+  }
+
+  // Detect fresh login: if we just came from auth page, play entry animation
+  const justLoggedIn = sessionStorage.getItem("pmx-was-on-auth") === "1";
+  if (justLoggedIn) sessionStorage.removeItem("pmx-was-on-auth");
 
   function handleOpenProject(id: string | null) {
     setActiveProjectId(id);
@@ -52,7 +60,7 @@ function AppShell() {
   return (
     <>
       <Navbar activePage={activePage} onNavigate={handleNavigate} />
-      <div className="app-shell">
+      <div className={`app-shell${justLoggedIn ? " app-shell--entering" : ""}`}>
         <Sidebar activePage={activePage} onNavigate={handleNavigate} />
         <main className="main-content">
           {renderPage()}
